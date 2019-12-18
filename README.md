@@ -1,250 +1,198 @@
-[![Current version on ROS](https://img.shields.io/badge/ROS-Melodic-blue.svg)](http://wiki.ros.org/melodic)
-![C++ Wrapper](https://img.shields.io/badge/C%2B%2B-100%25-green.svg)
-![Python Wrapper](https://img.shields.io/badge/Python-100%25-green.svg)
-[![Current version of release](https://img.shields.io/github/release/Plymouth-Sailboat/SailBoatROS/all.svg)](https://github.com/Plymouth-Sailboat/SailBoatROS/releases/latest)
-[![Build Status](https://travis-ci.com/Plymouth-Sailboat/SailBoatROS.svg?branch=master)](https://travis-ci.com/Plymouth-Sailboat/SailBoatROS)
+# Boatlette - Autonomous Sailing Platform - Raspberry Pi setup
+This is a guide to setup the Raspberry Pi 4 with Ubuntu (Xubuntu desktop), ROS (Melodic) and Arduino Mega 2560, which is utilized in this [autonomous sailing platform project](https://github.com/H8ste/SailBoatROS) - A project by Medialogy Msc students from Aalborg University.
 
-# SailBoatROS
+Known issues and usage of the platform are included at the end of the guide.
 
-![boatgif](https://github.com/Plymouth-Sailboat/plymouth-sailboat.github.io/blob/master/img/misc/boatgif2.gif?raw=true)
+Before starting this guide, make sure you have:
+* A Raspberry Pi 4
+* A ethernet cable
+* A monitor that supports HDMI input
+* USB Keyboard
+* USB mouse
 
-C++ and Python code for [Plymouth's Autonomous Sailboat](https://plymouth-sailboat.github.io/). This contains the catkin workspace of the nodes for the sailboat. Every controllers subscribe to topics sent by the arduino and publish commands to it. It is made of classes in C++ and Python for easy integration.  
-For a full view of the package [go here](https://github.com/Plymouth-Sailboat/SailBoatROS/wiki/Sailrobot-Package).
+## Step by step - Ubuntu Server on Raspberry Pi 4 with Arduino and ROS
 
-**For more information look at the Wikis. The project is separated into 3 categories : [SailboatMeca](https://github.com/Plymouth-Sailboat/Sailboat-Meca), [SailBoatROS](https://github.com/Plymouth-Sailboat/SailBoatROS) and [SailboatArduinoInterface](https://github.com/Plymouth-Sailboat/SailBoatArduinoInterface).**
+### Update firmware with Raspbian
 
-**[SailboatMeca](https://github.com/Plymouth-Sailboat/Sailboat-Meca) explains the hardware configuration of the boat. The sensors that are used, how to build the control box and how to attach all the components to the control box.**
+1. Download a [Raspbian image](https://www.raspberrypi.org/downloads/raspbian/). We used `Raspbian Buster with desktop and recommended software` (version: September 2019, release: 2019-09-26, kernel: 4.19), but any version should do just fine.
 
-**[SailBoatROS](https://github.com/Plymouth-Sailboat/SailBoatROS) contains the code on the Raspberry Pi. It explains how to have a full environment ready on the Raspberry Pi 3B and Raspberry Pi 3B+ to have a working boat.**
+2. Flash the image on a SD card with a SD card flasher software. We used [Balena Etcher](https://www.balena.io/etcher/) (version 1.5.58).
 
-**[SailBoatArduinoInterface](https://github.com/Plymouth-Sailboat/SailBoatArduinoInterface) explains how to upload the code to the Arduino. It also explains how to change the configuration files or how to add sensors to comply with your hardware configuration.  
-Please look at all their wikis and READMEs.**
-
-## Install image and have a ready-to-use SD Card
-
-An SD Card image is available [on the latest release here](https://github.com/Plymouth-Sailboat/SailBoatROS/releases/latest) containing a complete environment for the sailboat with both the Raspberry Pi 3 (Kinetic version) or the Raspberry Pi 3+ (Melodic version). You will need a minimum of 16Gb SD card and you can use [Etcher](https://etcher.io/) to write the image directly to your SD Card.  
-Once your image is installed, you have to expand the memory, explained [here](https://github.com/Plymouth-Sailboat/SailBoatROS/wiki/Install-the-Image#expand-filesystem).
-
-Update everything to be up-to-date :  
+3. Install Rasbian and update the firmware with the following commands:
 ```
-cd ~/ros_catkin/src
-git pull
-cd ../
-catkin_make
+sudo apt-get update && sudo apt-get dist-upgrade -y
+```
+```
+sudo rpi-update
 ```
 
-You can then follow the [Usage](https://github.com/Plymouth-Sailboat/SailBoatROS#Usage) part to get your boat running !  
-Check the [FAQ](https://github.com/Plymouth-Sailboat/SailBoatROS#faq) if you have any problems.
-
-## Getting Started (without installing the image)
-
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. 
-
-For a full tutorial for the Raspberry Pi 3B installation (ROS Kinetic version) follow [Preparing the Raspberry Pi](https://github.com/Plymouth-Sailboat/SailBoatROS/wiki/Preparing-the-Raspberry-Pi) in the wiki.
-
-For the tutorial for the Raspberry Pi 3B+, follow the README below.
-
-### Prerequisites
-
-- [Ubuntu Mate for Raspberry Pi 3B+](https://ubuntu-mate.org/raspberry-pi/)
-- [ROS Kinetic](http://wiki.ros.org/kinetic) OR [ROS Melodic](http://wiki.ros.org/melodic)
-- Raspberry Pi 3 (B or B+) connected to the Arduino with [Arduino Code Uploaded](https://github.com/Plymouth-Sailboat/SailBoatArduinoInterface). **Note: ROS Melodic can only be installed on the Raspberry Pi 3B+.**
-- [Raspicam Node](https://github.com/UbiquityRobotics/raspicam_node)
-- [Rosserial-Arduino Node](http://wiki.ros.org/rosserial_arduino)
-
-**Note :** some nodes use Python3. For this to work with ROS, ROS needs to be installed using python3 dependencies. This is done by executing :
+and afterwards
 ```
-sudo apt install python3-pip python3-yaml
-pip3 install rospkg catkin_pkg
+sudo rpi-eeprom-update -a
 ```
 
-### Installing
+### Ubuntu installation
+Now that the firmware is up-to-date, Ubuntu Server can now be setup.
 
-Create your catkin workspace if you haven't already and clone the sources in there :
+1. Download the unofficial image from [here](https://jamesachambers.com/raspberry-pi-4-ubuntu-server-desktop-18-04-3-image-unofficial/)
 
+2. Flash the image on a SD card with a SD card flasher software. We used [Balena Etcher](https://www.balena.io/etcher/) (version 1.5.58).
+
+3. Login with username: `ubuntu` and password: `ubuntu`. You will be prompted to set a new password afterwards.
+
+4. Check if date is correct with `date`. If it isn't, set the date manually with for now:  
 ```
-mkdir -p ~/catkin_ws/src
-cd ~/catkin_ws/src
-git clone https://github.com/plymouth-sailboat/SailBoatROS.git .
-```
-
-Make sure you have all the [dependencies](https://github.com/Plymouth-Sailboat/SailBoatROS#dependencies) for the build to work. In summary execute the commands here :
-
-```
-cd ~/catkin_ws/
-rosdep update
-rosdep install --from-paths src --ignore-src --rosdistro melodic -y ##installing all the dependencies related to ROS
-sudo apt install libnlopt-dev python-numpy python-pygame #installing third-party dependencies
-pip install -r requirements.txt #installing python related dependencies
-pip3 install -r requirements.txt #installing python3 related dependencies
+sudo date –s ‘2019-12-14 11:25:50’ 
 ```
 
-Catkin_make to build the packages in the workspace. Finally source the catkin workspace to have access to the nodes :
-
+5. Run updater provided by [James A. Chambers](https://jamesachambers.com/raspberry-pi-4-ubuntu-server-desktop-18-04-3-image-unofficial/): 
 ```
-cd ~/catkin_ws/
-catkin_make
-source devel/setup.bash
+wget https://raw.githubusercontent.com/TheRemote/Ubuntu-Server-raspi4-unofficial/master/Updater.sh 
 ```
-
-**Note :** You may have to run catkin_make multiple time. This is due mostly because the Raspberry Pi doesn't have enough RAM memory to build everything in one go. Look into adding some swap memory (even if it is not recommended for Raspberry Pi).
-
-If you have any trouble, look at the [FAQ](https://github.com/Plymouth-Sailboat/SailBoatROS#FAQ) at the end of this readme.
-
-### ROS_LIB
-The arduino needs an up to date library from ROS. To do so, after the installation above, run the following command :
 ```
-rosrun rosserial_arduino make_libraries.py .
+chmod +x Updater.sh 
 ```
-This will build a folder __ros_lib__ on the current directory. This folder needs to be put in the library folder of your Arduino and the arduino package needs to be compiled with it.  
-Simply replace the current __ros_lib__ in your Arduino library with this one and upload your Arduino project to the Arduino. The communication between the Arduino and the Raspberry Pi should work now.
-
-### Dependencies
-
-We use standard messages as much as possible and try to have as less dependencies as possible.
-
-This repo expects to have a working ROS Kinetic/ROS Melodic machine. If not, install it from [ROS Kinetic](http://wiki.ros.org/kinetic/Installation)/[ROS Melodic](http://wiki.ros.org/melodic/Installation).  
-If you are on a raspberry pi 3 we suggest installing the [Ubiquity Robotics image](https://downloads.ubiquityrobotics.com/) which already has ROS Kinetic installed.  
-If you are on a raspberry pi 3 b+, you can install Ubuntu Mate 18.04 and then install ROS Melodic.
-
-One particular third-party library is used for control optimization. NLOpt. To install it, type :  
 ```
-sudo apt-get install libnlopt-dev
+sudo ./Updater.sh 
 ```
 
-#### ROS Dependencies
-We use the message [gps_common/GPSFix](http://docs.ros.org/hydro/api/gps_common/html/msg/GPSFix.html) for our GPS, which you will need to install the dependency.
-To communicate with the Arduino we use the `rosserial-arduino` [node](http://wiki.ros.org/rosserial_arduino).
-Some dependencies are needed for specific modules :
-We use cv_bridge to use openCV with ROS. Related to the node Obstacle_avoidance.
-We use serial to use the XBee module. Related to the package xbee_serial.
+6. Reboot and set date and time again if necessary. 
 
-To install them, you can run (when in the catkin workspace `catkin_ws/` :
+7. Install xubuntu desktop (we had version 18.04): 
 ```
-rosdep update
-rosdep install --from-paths src --ignore-src --rosdistro melodic -y
+sudo apt-get update && sudo apt-get dist-upgrade -y && sudo apt-get install xubuntu-desktop –y 
 ```
-This will install all the dependencies used by the package.  
-Or execute, with [distro] being the ROS distro used (in this case __melodic__) :
+8. Reboot to start the desktop. Fix time/date permanently with the commands below. **NOTE:** This will not work if you have set the correct time manually.
 ```
-sudo apt-get install ros-[distro]-gps-common
-sudo apt-get install ros-[distro]-visualization-msgs
-sudo apt-get install ros-[distro]-rosserial-arduino
-sudo apt-get install ros-[distro]-rosserial
-
-sudo apt-get install ros-[distro]-cv-bridge
-sudo apt-get install ros-[distro]-serial
+sudo apt-get install htpdate 
+```
+```
+sudo htpdate -a google.com 
 ```
 
-Because we use the raspberry pi camera, you will need [Raspicam Node](https://github.com/UbiquityRobotics/raspicam_node). There are multiple raspicam_node out there, either version should work. While not all our controls use the camera, you will need this for the complete sailboat to work.
+## Installing and setting up ROS and Arduino
 
-Those are the ROS dependencies used :
+1. Install ROS Melodic by following [this guide](http://wiki.ros.org/melodic/Installation/Ubuntu) 
 
+2. Setup a workspace for ROS according to [this documentation](http://wiki.ros.org/ROS/Tutorials/InstallingandConfiguringROSEnvironment)
+
+3. Install python3-pip and python3-yaml:  
 ```
-rospy roscpp std_msgs gps_common visualization-msgs
+sudo apt install python3-pip python3-yaml 
 ```
-#### Python Dependencies
-For python controllers, the only dependencies used is [NumPy](http://www.numpy.org/), so you will need to add it to python dependencies :
+4. Install the following ros-related python packages through pip3-install: 
 ```
-pip install numpy
+pip3 install rospkg catkin_pkg 
 ```
-Numpy installation might not work on the Raspberry Pi as expected. In that case, instead of running the above commands, run :  
+5. Clone our github for the ROS-files (you can also use [Plymouth SailboatROS](https://github.com/Plymouth-Sailboat), as it gets updated often):  
 ```
-sudo apt install python-numpy
+cd ~/catkin_ws/src 
+```
+```
+git clone https://github.com/H8ste/SailBoatROS.git 
+```
+6. Update dependencies: 
+```
+cd ~/catkin_ws/ 
+```
+```
+rosdep update 
+```
+```
+rosdep install --from-paths src --ignore-src --rosdistro melodic -y  
+```
+```
+sudo apt install libnlopt-dev python-numpy python-pygame 
+```
+```
+sudo apt install python-pip 
+```
+```
+pip install -r src/SailBoatROS/requirements.txt  
+```
+```
+pip3 install -r src/SailBoatROS/requirements.txt  
+```
+7. Configure our environment, so we can use the commands in ROS: 
+```
+cd ~/catkin_ws/ 
+```
+```
+catkin_make 
+```
+```
+source devel/setup.bash 
+```
+8. Download [Arduino IDE for Linux ARM 64 bits](https://www.arduino.cc/en/main/software). We used version 1.8.10.
+
+9. Clone our github for the arduino files. You can also instead use the [Plymouth Arduino Interface](https://github.com/Plymouth-Sailboat/SailBoatArduinoInterface) which is the basis of our Sailboat: 
+```
+git clone https://github.com/H8ste/SailBoatArduinoInterface 
 ```
 
-There are other dependencies in the sailrobot_modules package (PyGame, Digi Xbee library, PyUDev). Pygame is better installed using apt rather than pip :
-```
-sudo apt install python-pygame
-```
+10. Copy `libraries`-folder from the sailboat-arduino-github above into your own Arduino installation directory. 
 
-And now you can run in the catkin workspace (`catkin_ws/`)
+11. Acquire up-to-date library from ROS with the command below and replace the `ros_lib`-library in your `libraries`-folder at the Arduino installation directory:  
 ```
-pip install -r requirements.txt
-pip3 install -r requirements.txt
+rosrun rosserial_arduino make_libraries.py 
 ```
-
-**Note :** You will have an error at the end of the pip install,  this is normal.
-
-**In summary execute the commands here :**
-
+12. Go to `arduino-1-8-10/libraries/Sailboat/` and add own config-file (copy `config-Boatlette.h` and change accordingly to own sailboat configuration using the naming convention `config-YourBoatName.h`). Add the following code to `config-Sailboat.h` afterwards to utilize the new config-file: 
 ```
-cd ~/catkin_ws/
-rosdep update
-rosdep install --from-paths src --ignore-src --rosdistro melodic -y ##installing all the dependencies related to ROS
-sudo apt install libnlopt-dev python-numpy python-pygame #installing third-party dependencies
-pip install -r requirements.txt #installing python related dependencies
-pip3 install -r requirements.txt #installing python3 related dependencies
-```
-### Usage
-
-To launch the communication with the Arduino you have to launch the [rosserial_python](http://wiki.ros.org/rosserial_python) node with the proper USB device, /dev/ttyACM0 in our case :
-
-```
-rosrun rosserial_python serial_node.py /dev/ttyACM0 _baud:=115200
+#ifdef SAILBOAT_YOURBOATNAME 
+#pragma message("SAILBOAT_ YOURBOATNAME chosen") 
+#include <config-YourBoatName.h> 
+#endif 
 ```
 
-You can then launch any nodes of the sailboat e.g. :
+## Logging data
 
+Our autonomous sailboat platform affords the ability to log data through use of a node-express back-end application. 
+
+
+1. Install requests-module to be able to receive http-requests: 
+```
+pip install requests 
+```
+2. Clone rospy-message-converter into `catkin_ws/src`: 
+```
+cd ~/catkin_ws/src 
+```
+```
+git clone https://github.com/uos/rospy_message_converter.git 
+```
+
+##  Know issues
+
+* If you are dependant of a wifi connection while setting up the Raspberry Pi, use the following guide to fix the wifi adapter: https://www.linuxbabe.com/command-line/ubuntu-server-16-04-wifi-wpa-supplicant 
+
+* Fix time and date by running the commands below, (**NOTE:** the date/time should not be correct set when doing this!): 
+```
+sudo apt-get install htpdate 
+```
+```
+sudo htpdate -a google.com 
+```
+* When booting up the Raspberry Pi, it waits for the network and will continue to do so for 2 min. To disable this, run the following: 
+```
+systemctl disable systemd-networkd-wait-online.service 
+```
+```
+systemctl mask systemd-networkd-wait-online.service 
+```
+##  Using the software
+
+To run ROS, use the following commands in the ubuntu terminal, or by SSH:
+```
+roslaunch sailboat start.launch
+```
+
+Then run your chosen navigational algorithm, based the software architechture from the [Plymouth Sailboat](https://github.com/Plymouth-Sailboat), for instance:
+
+Waypoint follower:
+```
+rosrun sailrobot waypoint_follower
+```
+Line-following:
 ```
 rosrun sailrobot line_following_node
 ```
-
-Or you can run the prebuilt launch config file which will launch a simulation and visualization of the boat :
-
-```
-roslaunch sailrobot simuBoat.launch
-```
-**Note :** This may crash if launched on the Raspberry Pi. Run simulations on a computer and not the Raspberry Pi.
-
-or you can launch the communication with the Arduino and the rest of the sensors :
-
-```
-roslaunch sailrobot start.launch
-```
-
-## Authors
-
-* [**Ulysse VAUTIER**](https://ulyssevautier.github.io/) - *Main Author*
-* [**Christophe VIEL**](https://www.researchgate.net/profile/Christophe_Viel)
-
-## Contributors
-* [**Alexandre COURJAUD**](https://github.com/AlexandreCourjaud/Stage2APlymouth)
-* [**Corentin JEGAT**](https://github.com/corentin-j/wrsc_plymouth_2019)
-
-## License
-
-This project is licensed under the GNU General Public License v3.0 - see the [LICENSE.md](LICENSE.md) file for details
-
-## Acknowledgments
-* [GLM](https://github.com/g-truc/glm) : Math C++ library compatible with OpenGL, using GLSL shader language syntax.
-
-## Look at the Wiki!
-If you want more information about the raspberry pi and the boat, please look at [the wiki](https://github.com/Plymouth-Sailboat/SailBoatROS/wiki)
-
-## CI (Continuous Integration)
-This project uses Continuous Integration with [Travis CI](https://travis-ci.com/Plymouth-Sailboat/SailBoatROS).
-
-## FAQ
-**Q)** I get the following error message when running the command `rosrun rosserial_python serial_node.py /dev/ttyACM0 _baud:=115200` :
-  *  `wrong checksum for topic id and msg` once in the beginning.  
-  **A)** This shouldn't affect the communication. Check that you have the topics and that they work, for example using the command :
-  ```
-  rostopic list
-  rostopic echo /wind
-  ```
-  *  An error of the sort `Unable to sync with device; possible link problem or link software version mismatch such as hydro rosserial_python with groovy Arduino`.  
-  **A)** This is due because the ros_lib on the Arduino side does not match your Raspberry Pi version of ROS. Follow the guide on [ros_lib](https://github.com/Plymouth-Sailboat/SailBoatROS#ROS_LIB). Another reason might be that the Arduino is stuck or slow. In this case try to change the configuration of the hardware side (in [SailBoatArduinoInterface//AutonomousSailboat/libraries/Sailboat/config-Sailboat.h](https://github.com/Plymouth-Sailboat/SailBoatArduinoInterface/blob/master/AutonomousSailboat/libraries/Sailboat/config-Sailboat.h)).
-  
-  *  `ImportError: No module named msg` from rosserial.  
-  **A)** Your rosserial is broken or is not linked. First check that you have sourced your package and ros :
-  ```
-  source ~/catkin_ws/devel/setup.bash
-  source /opt/ros/[distro]/setup.bash
-  ```
-  If this does not solve your problem, try to install the package rosserial and retry to run the serial_node.py node :
-  ```
-  sudo apt update
-  sudo apt install ros-melodic-rosserial ros-melodic-rosserial-arduino
-  ```
-  
