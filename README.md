@@ -1,6 +1,8 @@
 # Boatlette - Autonomous Sailing Platform - Raspberry Pi setup
 This is a guide to setup the Raspberry Pi 4 with Ubuntu (Xubuntu desktop), ROS (Melodic) and Arduino Mega 2560, which is utilized in this [autonomous sailing platform project](https://github.com/H8ste/SailBoatROS) - A project by Medialogy Msc students from Aalborg University.
 
+Link to the other repositories: [Arduino Repository](https://github.com/H8ste/SailBoatArduinoInterface) & [Mechanical Repository](https://github.com/H8ste/BoatletteSailBoat-Meca) & [Visualisation Repository](https://github.com/H8ste/Boatplatform-visualisation).
+
 Known issues and usage of the platform are included at the end of the guide.
 
 Before starting this guide, make sure you have:
